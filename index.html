@@ -2,30 +2,40 @@
 <html>
 <head>
     <title>자동차 AR 시연 - 시퀀스 제어</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
-        body { margin: 0; padding: 0; overflow: hidden; }
+        body { margin: 0; padding: 0; }
         model-viewer { width: 100%; height: 95vh; background-color: #f0f0f0; }
 
-        /* 플레이 버튼 스타일 */
+        /* 하단 플레이 버튼 */
         #playBtn {
             position: fixed;
-            bottom: 30px;
+            bottom: 40px;
             left: 50%;
             transform: translateX(-50%);
-            padding: 15px 25px;
+            padding: 15px 30px;
             background: #007AFF;
             color: white;
             border: none;
             border-radius: 50px;
             font-size: 16px;
             font-weight: bold;
-            cursor: pointer;
             z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        /* AR 진입 버튼 (우측 상단 고정) */
+        #ar-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1001;
         }
 
         .hidden { display: none !important; }
@@ -37,10 +47,17 @@
         id="viewer" 
         src="car.glb" 
         ar 
+        ar-modes="webxr scene-viewer quick-look" 
         camera-controls 
         shadow-intensity="1"
-        scale="0.25 0.25 0.25"> <button id="playBtn">
-            <span id="iconPlay">▶ 재생</span>
+        scale="0.25 0.25 0.25">
+
+        <button slot="ar-button" id="ar-button">
+            👋 여기서 AR 보기
+        </button>
+
+        <button id="playBtn">
+            <span id="iconPlay">▶ 재생 시작</span>
             <span id="iconPause" class="hidden">|| 일시정지</span>
             <span id="iconReplay" class="hidden">🔄 다시보기</span>
         </button>
@@ -52,7 +69,6 @@
         const playBtn = document.querySelector('#playBtn');
         let isPlaying = false;
 
-        // 1. 버튼 클릭 시 제어 로직
         playBtn.addEventListener('click', () => {
             if (isPlaying) {
                 viewer.pause();
@@ -61,26 +77,23 @@
                 return;
             }
 
-            // 'up' 애니메이션부터 시작 (이름이 정확해야 합니다)
+            // 'up' 애니메이션부터 시작
             viewer.animationName = 'up'; 
             viewer.play();
             isPlaying = true;
             setIcon('pause');
         });
 
-        // 2. 애니메이션 종료 감지 (up -> down 연결)
         viewer.addEventListener('finished', () => {
             if (viewer.animationName === 'up') {
-                viewer.animationName = 'down'; // up 끝나면 down 실행
+                viewer.animationName = 'down';
                 viewer.play();
             } else {
-                // down까지 모두 완료된 상태
                 isPlaying = false;
                 setIcon('replay');
             }
         });
 
-        // 3. 아이콘 교체 함수
         function setIcon(state) {
             document.querySelector('#iconPlay').classList.toggle('hidden', state !== 'play');
             document.querySelector('#iconPause').classList.toggle('hidden', state !== 'pause');
