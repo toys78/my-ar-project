@@ -1,21 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>자동차 AR 시연 - 시퀀스 제어</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 자동차 AR 시연</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
-        body { margin: 0; padding: 0; }
+        body { margin: 0; padding: 0; font-family: sans-serif; }
         model-viewer { width: 100%; height: 95vh; background-color: #f0f0f0; }
 
-        /* 하단 플레이 버튼 */
+        /* 플레이 버튼 디자인 */
         #playBtn {
             position: fixed;
             bottom: 40px;
             left: 50%;
             transform: translateX(-50%);
             padding: 15px 30px;
-            background: #007AFF;
+            background: #007AFF; /* 모던 블루 */
             color: white;
             border: none;
             border-radius: 50px;
@@ -23,9 +24,10 @@
             font-weight: bold;
             z-index: 1000;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            cursor: pointer;
         }
 
-        /* AR 진입 버튼 (우측 상단 고정) */
+        /* 아이폰에서 AR 버튼이 절대 숨겨지지 않도록 강제 노출 */
         #ar-button {
             position: absolute;
             top: 20px;
@@ -36,6 +38,7 @@
             border-radius: 8px;
             font-size: 14px;
             z-index: 1001;
+            display: block !important; /* 강제 노출 */
         }
 
         .hidden { display: none !important; }
@@ -46,14 +49,15 @@
     <model-viewer 
         id="viewer" 
         src="car.glb" 
+        ios-src="car.glb" 
         ar 
-        ar-modes="webxr scene-viewer quick-look" 
+        ar-modes="quick-look webxr scene-viewer" 
         camera-controls 
         shadow-intensity="1"
         scale="0.25 0.25 0.25">
 
         <button slot="ar-button" id="ar-button">
-            👋 여기서 AR 보기
+            📱 여기서 AR 보기
         </button>
 
         <button id="playBtn">
@@ -69,6 +73,7 @@
         const playBtn = document.querySelector('#playBtn');
         let isPlaying = false;
 
+        // 1. 버튼 클릭 제어 로직
         playBtn.addEventListener('click', () => {
             if (isPlaying) {
                 viewer.pause();
@@ -84,16 +89,19 @@
             setIcon('pause');
         });
 
+        // 2. 애니메이션 종료 감지 (up -> down 순차 재생)
         viewer.addEventListener('finished', () => {
             if (viewer.animationName === 'up') {
-                viewer.animationName = 'down';
+                viewer.animationName = 'down'; // up이 끝나면 down 실행
                 viewer.play();
             } else {
+                // down까지 완료된 상태
                 isPlaying = false;
                 setIcon('replay');
             }
         });
 
+        // 3. 아이콘 상태 변경 함수
         function setIcon(state) {
             document.querySelector('#iconPlay').classList.toggle('hidden', state !== 'play');
             document.querySelector('#iconPause').classList.toggle('hidden', state !== 'pause');
