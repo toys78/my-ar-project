@@ -3,87 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>아이폰 AR 이벤트 연동</title>
+    <title>차량 AR 최종 시연</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
-        body { margin: 0; padding: 0; }
+        body { margin: 0; padding: 0; overflow: hidden; }
         model-viewer { width: 100%; height: 95vh; background-color: #f0f0f0; }
 
-        .play-button {
+        /* 시작 버튼 위치: 65px (절반 정도 상향) */
+        #playBtn {
             position: fixed;
             bottom: 65px; 
             left: 50%;
             transform: translateX(-50%);
             padding: 15px 35px;
-            background-color: #007AFF;
+            background: #007AFF;
             color: white;
             border: none;
             border-radius: 50px;
             font-size: 16px;
             font-weight: bold;
-            z-index: 9999; /* 최상단 레이어 보장 */
+            z-index: 9999;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
             gap: 10px;
         }
+
+        /* AR 진입 버튼 강제 노출 설정 */
+        #ar-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            background: white !important;
+            color: black !important;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1001;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
     <model-viewer 
-        id="car-viewer"
-        src="car.glb" 
-        ios-src="car.glb" 
+        id="viewer" 
+        src="car_v1.glb" 
+        ios-src="car_v1.glb" 
         ar 
-        ar-modes="quick-look" 
+        ar-modes="quick-look webxr" 
         camera-controls 
+        shadow-intensity="1"
         scale="0.25 0.25 0.25"
         ar-placement="floor">
 
-        <button slot="ar-button" style="background-color: white; border-radius: 4px; border: none; position: absolute; top: 16px; right: 16px; padding: 10px; z-index: 100;">
-            👋 여기서 AR 보기
+        <button slot="ar-button" id="ar-button">
+            📱 여기서 AR 보기
         </button>
 
-        <button id="play-btn" class="play-button" slot="ar-content">
+        <button id="playBtn" slot="ar-content">
             <span id="play-icon">▶</span> <span id="btn-text">애니메이션 재생</span>
         </button>
 
     </model-viewer>
 
     <script>
-        const modelViewer = document.querySelector('#car-viewer');
-        const playBtn = document.querySelector('#play-btn');
+        const viewer = document.querySelector('#viewer');
+        const playBtn = document.querySelector('#playBtn');
         const btnText = document.querySelector('#btn-text');
         const playIcon = document.querySelector('#play-icon');
-        
         let isPlaying = false;
 
-        // 아이폰 AR 모드에서의 클릭 이벤트 보정
         playBtn.addEventListener('click', (e) => {
-            // AR 시스템 이벤트와 충돌 방지
-            e.stopPropagation();
             e.preventDefault();
+            e.stopPropagation();
 
             if (isPlaying) {
-                modelViewer.pause();
+                viewer.pause();
                 isPlaying = false;
                 updateButton("play");
                 return;
             }
 
-            // 'up' 애니메이션부터 시작
-            modelViewer.animationName = 'up'; 
-            modelViewer.currentTime = 0;
-            modelViewer.play();
+            viewer.animationName = 'up'; 
+            viewer.currentTime = 0;
+            viewer.play();
             isPlaying = true;
             updateButton("pause");
         });
 
-        modelViewer.addEventListener('finished', () => {
-            if (modelViewer.animationName === 'up') {
-                modelViewer.animationName = 'down';
-                modelViewer.play();
+        viewer.addEventListener('finished', () => {
+            if (viewer.animationName === 'up') {
+                viewer.animationName = 'down';
+                viewer.play();
             } else {
                 isPlaying = false;
                 updateButton("replay");
