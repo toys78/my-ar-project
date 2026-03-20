@@ -1,28 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>내 자동차 AR 시연</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
-        body { margin: 0; padding: 0; }
+        body { margin: 0; padding: 0; overflow: hidden; }
         model-viewer { width: 100%; height: 95vh; background-color: #f0f0f0; }
 
-        /* 플레이 버튼 디자인 */
+        /* [요청 1] 재생 버튼 위치: 버튼 높이 절반만큼 위로 이동 */
         .play-button {
-            position: absolute;
-            bottom: 40px;
+            position: fixed;
+            bottom: 65px; /* 기존 40px에서 위로 조정 */
             left: 50%;
             transform: translateX(-50%);
-            padding: 15px 30px;
-            background-color: #007AFF; /* 모던한 블루 */
+            padding: 15px 35px;
+            background-color: #007AFF;
             color: white;
             border: none;
-            border-radius: 30px;
+            border-radius: 50px;
             font-size: 16px;
             font-weight: bold;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             cursor: pointer;
-            z-index: 100;
+            z-index: 9999;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -32,6 +34,8 @@
             background-color: #0056b3;
             transform: translateX(-50%) scale(0.95);
         }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
@@ -39,16 +43,20 @@
     <model-viewer 
         id="car-viewer"
         src="car.glb" 
+        ios-src="car.glb" 
         ar 
-        ar-modes="webxr scene-viewer quick-look" 
+        ar-modes="quick-look webxr scene-viewer" 
         camera-controls 
-        shadow-intensity="1" 
-        animation-name="*"> <button slot="ar-button" style="background-color: white; border-radius: 4px; border: none; position: absolute; top: 16px; right: 16px; padding: 10px;">
+        shadow-intensity="1"
+        scale="0.25 0.25 0.25"
+        ar-placement="floor">
+
+        <button slot="ar-button" style="background-color: white; border-radius: 4px; border: none; position: absolute; top: 16px; right: 16px; padding: 10px; z-index: 100;">
             👋 여기서 AR 보기
         </button>
 
-        <button id="play-btn" class="play-button">
-            <span>▶</span> 애니메이션 재생
+        <button id="play-btn" class="play-button" slot="ar-content">
+            <span id="play-icon">▶</span> <span id="btn-text">애니메이션 재생</span>
         </button>
 
     </model-viewer>
@@ -56,20 +64,52 @@
     <script>
         const modelViewer = document.querySelector('#car-viewer');
         const playBtn = document.querySelector('#play-btn');
+        const btnText = document.querySelector('#btn-text');
+        const playIcon = document.querySelector('#play-icon');
+        
+        let isPlaying = false;
 
-        playBtn.addEventListener('click', () => {
-            // 처음부터 재생하기 위해 시간을 0으로 초기화
+        playBtn.addEventListener('click', (e) => {
+            e.preventDefault(); // AR 모드 간섭 방지
+
+            if (isPlaying) {
+                modelViewer.pause();
+                isPlaying = false;
+                updateButton("play");
+                return;
+            }
+
+            // 'up' 애니메이션부터 시작
+            modelViewer.animationName = 'up'; 
             modelViewer.currentTime = 0;
             modelViewer.play();
-            
-            // 재생 중임을 알리기 위해 버튼 텍스트 변경 (선택 사항)
-            playBtn.innerHTML = "<span>🔄</span> 다시 재생";
+            isPlaying = true;
+            updateButton("pause");
         });
 
-        // 애니메이션이 끝나면 버튼 상태를 원래대로 (선택 사항)
+        // 'up' 끝나면 자동으로 'down' 재생
         modelViewer.addEventListener('finished', () => {
-            playBtn.innerHTML = "<span>▶</span> 애니메이션 재생";
+            if (modelViewer.animationName === 'up') {
+                modelViewer.animationName = 'down';
+                modelViewer.play();
+            } else {
+                isPlaying = false;
+                updateButton("replay");
+            }
         });
+
+        function updateButton(state) {
+            if (state === "play") {
+                playIcon.innerHTML = "▶";
+                btnText.innerText = "애니메이션 재생";
+            } else if (state === "pause") {
+                playIcon.innerHTML = "||";
+                btnText.innerText = "일시 정지";
+            } else if (state === "replay") {
+                playIcon.innerHTML = "🔄";
+                btnText.innerText = "다시 재생";
+            }
+        }
     </script>
 
 </body>
