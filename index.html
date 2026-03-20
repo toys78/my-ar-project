@@ -2,123 +2,54 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>차량 AR 최종 시연</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자동차 AR 시연</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
         body { margin: 0; padding: 0; overflow: hidden; }
         model-viewer { width: 100%; height: 95vh; background-color: #f0f0f0; }
-
-        /* 시작 버튼 위치: 65px (절반 정도 상향) */
         #playBtn {
-            position: fixed;
-            bottom: 65px; 
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 15px 35px;
-            background: #007AFF;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-size: 16px;
-            font-weight: bold;
-            z-index: 9999;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            position: fixed; bottom: 65px; left: 50%; transform: translateX(-50%);
+            padding: 15px 35px; background: #007AFF; color: white; border: none;
+            border-radius: 50px; font-size: 16px; font-weight: bold; z-index: 9999;
         }
-
-        /* AR 진입 버튼 강제 노출 설정 */
-        #ar-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            padding: 12px 20px;
-            background: white !important;
-            color: black !important;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 14px;
-            z-index: 1001;
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-        }
-
-        .hidden { display: none !important; }
     </style>
 </head>
 <body>
-
     <model-viewer 
         id="viewer" 
-        src="car_v1.glb" 
-        ios-src="car_v1.glb" 
-        ar 
+        src="./car.glb"      ios-src="./car.glb"  ar 
         ar-modes="quick-look webxr" 
         camera-controls 
-        shadow-intensity="1"
         scale="0.25 0.25 0.25"
         ar-placement="floor">
 
-        <button slot="ar-button" id="ar-button">
+        <button slot="ar-button" style="position: absolute; top: 20px; right: 20px; padding: 12px; background: white; border-radius: 8px; border: 1px solid #ccc; z-index: 1001;">
             📱 여기서 AR 보기
         </button>
 
-        <button id="playBtn" slot="ar-content">
-            <span id="play-icon">▶</span> <span id="btn-text">애니메이션 재생</span>
-        </button>
-
+        <button id="playBtn" slot="ar-content">▶ 애니메이션 재생</button>
     </model-viewer>
 
     <script>
         const viewer = document.querySelector('#viewer');
         const playBtn = document.querySelector('#playBtn');
-        const btnText = document.querySelector('#btn-text');
-        const playIcon = document.querySelector('#play-icon');
         let isPlaying = false;
 
         playBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            e.stopPropagation();
-
-            if (isPlaying) {
-                viewer.pause();
-                isPlaying = false;
-                updateButton("play");
-                return;
-            }
-
+            if (isPlaying) { viewer.pause(); isPlaying = false; return; }
             viewer.animationName = 'up'; 
-            viewer.currentTime = 0;
             viewer.play();
             isPlaying = true;
-            updateButton("pause");
         });
 
         viewer.addEventListener('finished', () => {
             if (viewer.animationName === 'up') {
                 viewer.animationName = 'down';
                 viewer.play();
-            } else {
-                isPlaying = false;
-                updateButton("replay");
-            }
+            } else { isPlaying = false; }
         });
-
-        function updateButton(state) {
-            if (state === "play") {
-                playIcon.innerHTML = "▶";
-                btnText.innerText = "애니메이션 재생";
-            } else if (state === "pause") {
-                playIcon.innerHTML = "||";
-                btnText.innerText = "일시 정지";
-            } else if (state === "replay") {
-                playIcon.innerHTML = "🔄";
-                btnText.innerText = "다시 재생";
-            }
-        }
     </script>
 </body>
 </html>
