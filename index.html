@@ -2,43 +2,32 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>자동차 AR 시연 - 프리미엄 세팅</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 자동차 AR 시연</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
-        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow: hidden; }
-        model-viewer { width: 100%; height: 100vh; background-color: #f0f0f0; }
+        body { margin: 0; padding: 0; font-family: sans-serif; }
+        model-viewer { width: 100%; height: 95vh; background-color: #f0f0f0; }
 
-        /* [요청 1] 시작 버튼 위치 및 디자인 수정 */
+        /* 플레이 버튼 디자인 */
         #playBtn {
             position: fixed;
-            /* 기존 bottom: 40px에서 버튼 높이(약 50px)의 절반인 25px만큼 위로 이동 */
-            bottom: 65px; 
+            bottom: 40px;
             left: 50%;
             transform: translateX(-50%);
-            padding: 15px 35px;
-            background: rgba(0, 122, 255, 0.9); /* 약간 투명한 블루 */
+            padding: 15px 30px;
+            background: #007AFF; /* 모던 블루 */
             color: white;
             border: none;
             border-radius: 50px;
-            font-size: 17px;
-            font-weight: 600;
-            z-index: 9999; /* 최상위 레이어 */
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             cursor: pointer;
-            backdrop-filter: blur(5px); /* 배경 흐림 효과 */
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
 
-        #playBtn:active {
-            transform: translateX(-50%) scale(0.95);
-            background: rgba(0, 100, 210, 1);
-        }
-
-        /* [요청 2] AR 진입 버튼 (iOS 전용) */
+        /* 아이폰에서 AR 버튼이 절대 숨겨지지 않도록 강제 노출 */
         #ar-button {
             position: absolute;
             top: 20px;
@@ -48,10 +37,8 @@
             border: 1px solid #ccc;
             border-radius: 8px;
             font-size: 14px;
-            font-weight: 500;
             z-index: 1001;
-            display: block !important;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: block !important; /* 강제 노출 */
         }
 
         .hidden { display: none !important; }
@@ -67,8 +54,7 @@
         ar-modes="quick-look webxr scene-viewer" 
         camera-controls 
         shadow-intensity="1"
-        scale="0.25 0.25 0.25"
-        ar-placement="floor">
+        scale="0.25 0.25 0.25">
 
         <button slot="ar-button" id="ar-button">
             📱 여기서 AR 보기
@@ -87,15 +73,8 @@
         const playBtn = document.querySelector('#playBtn');
         let isPlaying = false;
 
-        // [요청 2 핵심] AR 모드에서도 버튼이 보이도록 제어 (iOS Quick Look 호환)
-        // 아이폰 Safari는 AR 진입 시 외부 버튼을 가리지만, 
-        // model-viewer가 제공하는 정석 루트를 통해 HTML 콘텐츠를 AR 위에 띄웁니다.
-        playBtn.setAttribute('slot', 'ar-content'); 
-
-        // 1. 버튼 클릭 제어 로직 (기존 유지)
-        playBtn.addEventListener('click', (event) => {
-            event.preventDefault(); // AR 모드에서 터치 이벤트가 모델로 전달되는 것 방지
-            
+        // 1. 버튼 클릭 제어 로직
+        playBtn.addEventListener('click', () => {
             if (isPlaying) {
                 viewer.pause();
                 isPlaying = false;
@@ -103,7 +82,7 @@
                 return;
             }
 
-            // 'up' 애니메이션부터 시작 (이름이 정확해야 합니다)
+            // 'up' 애니메이션부터 시작
             viewer.animationName = 'up'; 
             viewer.play();
             isPlaying = true;
@@ -128,10 +107,6 @@
             document.querySelector('#iconPause').classList.toggle('hidden', state !== 'pause');
             document.querySelector('#iconReplay').classList.toggle('hidden', state !== 'replay');
         }
-
-        // 💡 20년 경력의 베테랑을 위한 팁:
-        // 아이폰 AR 모드 진입 시 버튼이 너무 크거나 작게 보인다면, 
-        // CSS에서 #playBtn의 padding과 font-size를 조절해 보세요.
     </script>
 </body>
 </html>
