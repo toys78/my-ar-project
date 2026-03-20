@@ -24,24 +24,19 @@
     </style>
 </head>
 <body>
+<model-viewer src="car.glb" ar ar-modes="webxr scene-viewer quick-look" camera-controls tone-mapping="neutral" poster="poster.webp" shadow-intensity="1" autoplay>
+    <div class="progress-bar hide" slot="progress-bar">
+        <div class="update-bar"></div>
+    </div>
+    <button slot="ar-button" id="ar-button">
+        View in your space
+    </button>
+    <div id="ar-prompt">
+        <img src="https://modelviewer.dev/shared-assets/icons/hand.png">
+    </div>
+</model-viewer>
 
-    <model-viewer 
-        id="car-viewer"
-        src="car.glb" 
-        ar 
-        ar-modes="webxr scene-viewer quick-look" 
-        camera-controls 
-        shadow-intensity="1" 
-        animation-name="*"
-        scale="0.25 0.25 0.25"> <button slot="ar-button" style="background-color: white; border-radius: 4px; border: none; position: absolute; top: 16px; right: 16px; padding: 10px;">
-            👋 여기서 AR 보기
-        </button>
-
-        <button id="play-btn" class="play-button">
-            <span>▶</span> 애니메이션 재생
-        </button>
-
-    </model-viewer>
+    
 
     <script>
         const modelViewer = document.querySelector('#car-viewer');
