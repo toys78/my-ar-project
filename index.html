@@ -9,11 +9,13 @@
 
         /* 플레이 버튼 디자인 */
         .play-button {
-    position: absolute; /* 절대 위치 */
-    bottom: 50px;       /* 바닥에서 50px 띄움 */
-    z-index: 999;       /* 숫자가 높을수록 맨 앞으로 나옵니다 */
-    display: block !important; /* 강제로 보이게 설정 */
-        }
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%); /* 수평 중앙 정렬 */
+    z-index: 999;
+    display: block;              /* !important 제거 */
+}
 
         .play-button:active {
             background-color: #0056b3;
