@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>내 자동차 AR 시연</title>
+    <title>아이폰 AR 이벤트 연동</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
-        body { margin: 0; padding: 0; overflow: hidden; }
+        body { margin: 0; padding: 0; }
         model-viewer { width: 100%; height: 95vh; background-color: #f0f0f0; }
 
-        /* [요청 1] 재생 버튼 위치: 버튼 높이 절반만큼 위로 이동 */
         .play-button {
             position: fixed;
-            bottom: 65px; /* 기존 40px에서 위로 조정 */
+            bottom: 65px; 
             left: 50%;
             transform: translateX(-50%);
             padding: 15px 35px;
@@ -22,20 +21,12 @@
             border-radius: 50px;
             font-size: 16px;
             font-weight: bold;
+            z-index: 9999; /* 최상단 레이어 보장 */
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            cursor: pointer;
-            z-index: 9999;
             display: flex;
             align-items: center;
             gap: 10px;
         }
-
-        .play-button:active {
-            background-color: #0056b3;
-            transform: translateX(-50%) scale(0.95);
-        }
-
-        .hidden { display: none !important; }
     </style>
 </head>
 <body>
@@ -45,9 +36,8 @@
         src="car.glb" 
         ios-src="car.glb" 
         ar 
-        ar-modes="quick-look webxr scene-viewer" 
+        ar-modes="quick-look" 
         camera-controls 
-        shadow-intensity="1"
         scale="0.25 0.25 0.25"
         ar-placement="floor">
 
@@ -69,8 +59,11 @@
         
         let isPlaying = false;
 
+        // 아이폰 AR 모드에서의 클릭 이벤트 보정
         playBtn.addEventListener('click', (e) => {
-            e.preventDefault(); // AR 모드 간섭 방지
+            // AR 시스템 이벤트와 충돌 방지
+            e.stopPropagation();
+            e.preventDefault();
 
             if (isPlaying) {
                 modelViewer.pause();
@@ -87,7 +80,6 @@
             updateButton("pause");
         });
 
-        // 'up' 끝나면 자동으로 'down' 재생
         modelViewer.addEventListener('finished', () => {
             if (modelViewer.animationName === 'up') {
                 modelViewer.animationName = 'down';
@@ -111,6 +103,5 @@
             }
         }
     </script>
-
 </body>
 </html>
