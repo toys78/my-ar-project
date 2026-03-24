@@ -7,7 +7,242 @@
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
         body { margin: 0; padding: 0; overflow: hidden; }
+        model-viewer { width: 100%; height: 100vh; background-color:<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>자동차 AR 시연 - 자동 재생</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; }
         model-viewer { width: 100%; height: 100vh; background-color: #f0f0f0; }
+
+        /* 재생 상태를 보여주는 플로팅 버튼 (수동 제어용 유지) */
+        #playBtn {
+            position: fixed;
+            bottom: 65px; 
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 35px;
+            background: rgba(0, 122, 255, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 17px;
+            font-weight: bold;
+            z-index: 9999;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #ar-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            z-index: 1001;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <model-viewer 
+        id="viewer" 
+        src="car.glb" 
+        ios-src="car.glb" 
+        ar 
+        ar-modes="quick-look webxr" 
+        camera-controls 
+        scale="0.25 0.25 0.25"
+        ar-placement="floor"
+        autoplay
+        animation-name="up"> <button slot="ar-button" id="ar-button">📱 여기서 AR 보기</button>
+
+        <button id="playBtn" slot="ar-content">
+            <span id="iconPlay" class="hidden">▶ 재생 시작</span>
+            <span id="iconPause">|| 일시정지</span>
+            <span id="iconReplay" class="hidden">🔄 다시보기</span>
+        </button>
+
+    </model-viewer>
+
+    <script>
+        const viewer = document.querySelector('#viewer');
+        const playBtn = document.querySelector('#playBtn');
+        let isPlaying = true; // 자동 시작되므로 기본값 true
+
+        // 1. 모델 로딩 완료 시 자동 실행 보장
+        viewer.addEventListener('load', () => {
+            viewer.animationName = 'up';
+            viewer.play();
+            setIcon('pause');
+        });
+
+        // 2. 수동 제어 로직 (사용자가 멈추고 싶을 때)
+        playBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (isPlaying) {
+                viewer.pause();
+                isPlaying = false;
+                setIcon('play');
+            } else {
+                // 이미 끝났다면 처음부터(up) 다시 시작
+                if (viewer.animationName === 'down' && !isPlaying) {
+                    viewer.animationName = 'up';
+                    viewer.currentTime = 0;
+                }
+                viewer.play();
+                isPlaying = true;
+                setIcon('pause');
+            }
+        });
+
+        // 3. up -> down 순차 재생 자동화
+        viewer.addEventListener('finished', () => {
+            if (viewer.animationName === 'up') {
+                viewer.animationName = 'down';
+                viewer.play();
+                isPlaying = true;<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>자동차 AR 시연 - 자동 재생</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; }
+        model-viewer { width: 100%; height: 100vh; background-color: #f0f0f0; }
+
+        /* 재생 상태를 보여주는 플로팅 버튼 (수동 제어용 유지) */
+        #playBtn {
+            position: fixed;
+            bottom: 65px; 
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 35px;
+            background: rgba(0, 122, 255, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 17px;
+            font-weight: bold;
+            z-index: 9999;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #ar-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            z-index: 1001;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <model-viewer 
+        id="viewer" 
+        src="car.glb" 
+        ios-src="car.glb" 
+        ar 
+        ar-modes="quick-look webxr" 
+        camera-controls 
+        scale="0.25 0.25 0.25"
+        ar-placement="floor"
+        autoplay
+        animation-name="up"> <button slot="ar-button" id="ar-button">📱 여기서 AR 보기</button>
+
+        <button id="playBtn" slot="ar-content">
+            <span id="iconPlay" class="hidden">▶ 재생 시작</span>
+            <span id="iconPause">|| 일시정지</span>
+            <span id="iconReplay" class="hidden">🔄 다시보기</span>
+        </button>
+
+    </model-viewer>
+
+    <script>
+        const viewer = document.querySelector('#viewer');
+        const playBtn = document.querySelector('#playBtn');
+        let isPlaying = true; // 자동 시작되므로 기본값 true
+
+        // 1. 모델 로딩 완료 시 자동 실행 보장
+        viewer.addEventListener('load', () => {
+            viewer.animationName = 'up';
+            viewer.play();
+            setIcon('pause');
+        });
+
+        // 2. 수동 제어 로직 (사용자가 멈추고 싶을 때)
+        playBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (isPlaying) {
+                viewer.pause();
+                isPlaying = false;
+                setIcon('play');
+            } else {
+                // 이미 끝났다면 처음부터(up) 다시 시작
+                if (viewer.animationName === 'down' && !isPlaying) {
+                    viewer.animationName = 'up';
+                    viewer.currentTime = 0;
+                }
+                viewer.play();
+                isPlaying = true;
+                setIcon('pause');
+            }
+        });
+
+        // 3. up -> down 순차 재생 자동화
+        viewer.addEventListener('finished', () => {
+            if (viewer.animationName === 'up') {
+                viewer.animationName = 'down';
+                viewer.play();
+                isPlaying = true;
+                setIcon('pause');
+            } else {
+                isPlaying = false;
+                setIcon('replay');
+            }
+        });
+
+        function setIcon(state) {
+            document.querySelector('#iconPlay').classList.toggle('hidden', state !== 'play');
+            document.querySelector('#iconPause').classList.toggle('hidden', state !== 'pause');
+            document.querySelector('#iconReplay').classList.toggle('hidden', state !== 'replay');
+        }
+    </script>
+</body>
+</html>                setIcon('pause');
+            } else {
+                isPlaying = false;
+                setIcon('replay');
+            }
+        });
+
+        function setIcon(state) {
+            document.querySelector('#iconPlay').classList.toggle('hidden', state !== 'play');
+            document.querySelector('#iconPause').classList.toggle('hidden', state !== 'pause');
+            document.querySelector('#iconReplay').classList.toggle('hidden', state !== 'replay');
+        }
+    </script>
+</body>
+</html>#f0f0f0; }
 
         /* [요청] 시작 버튼: 버튼 높이 절반만큼 위로 이동 */
         #playBtn {
