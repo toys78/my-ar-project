@@ -3,29 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>자동차 AR 시연</title>
+    <title>자동차 AR 시연 - 자동 재생 버전</title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
-        body { margin: 0; padding: 0; overflow: hidden; }
-        model-viewer { width: 100%; height: 100vh; background-color:<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>자동차 AR 시연 - 자동 재생</title>
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
-    <style>
-        body { margin: 0; padding: 0; overflow: hidden; }
-        model-viewer { width: 100%; height: 100vh; background-color: #f0f0f0; }
+        body { margin: 0; padding: 0; overflow: hidden; background-color: #ffffff; }
+        model-viewer { width: 100%; height: 100vh; }
 
-        /* 재생 상태를 보여주는 플로팅 버튼 (수동 제어용 유지) */
+        /* [피드백 반영] 버튼 위치 65px 상향 */
         #playBtn {
             position: fixed;
             bottom: 65px; 
             left: 50%;
             transform: translateX(-50%);
             padding: 15px 35px;
-            background: rgba(0, 122, 255, 0.9);
+            background: #007AFF;
             color: white;
             border: none;
             border-radius: 50px;
@@ -35,6 +26,97 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
+            gap: 10px;
+        }
+
+        #ar-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            z-index: 1001;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <model-viewer 
+        id="viewer" 
+        src="car.glb" 
+        ios-src="car.glb" 
+        ar 
+        ar-modes="quick-look webxr" 
+        camera-controls 
+        scale="0.25 0.25 0.25"
+        ar-placement="floor"
+        environment-image="neutral" 
+        exposure="1"
+        autoplay
+        animation-name="up">
+
+        <button slot="ar-button" id="ar-button">📱 여기서 AR 보기</button>
+
+        <button id="playBtn" slot="ar-content">
+            <span id="iconPlay" class="hidden">▶ 재생 시작</span>
+            <span id="iconPause">|| 일시정지</span>
+            <span id="iconReplay" class="hidden">🔄 다시보기</span>
+        </button>
+
+    </model-viewer>
+
+    <script>
+        const viewer = document.querySelector('#viewer');
+        const playBtn = document.querySelector('#playBtn');
+        let isPlaying = true; 
+
+        // 모델 로드 즉시 자동 실행
+        viewer.addEventListener('load', () => {
+            viewer.animationName = 'up';
+            viewer.play();
+        });
+
+        playBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (isPlaying) {
+                viewer.pause();
+                isPlaying = false;
+                setIcon('play');
+            } else {
+                if (viewer.animationName === 'down' && !isPlaying) {
+                    viewer.animationName = 'up';
+                    viewer.currentTime = 0;
+                }
+                viewer.play();
+                isPlaying = true;
+                setIcon('pause');
+            }
+        });
+
+        // up -> down 순차 재생
+        viewer.addEventListener('finished', () => {
+            if (viewer.animationName === 'up') {
+                viewer.animationName = 'down';
+                viewer.play();
+                setIcon('pause');
+            } else {
+                isPlaying = false;
+                setIcon('replay');
+            }
+        });
+
+        function setIcon(state) {
+            document.querySelector('#iconPlay').classList.toggle('hidden', state !== 'play');
+            document.querySelector('#iconPause').classList.toggle('hidden', state !== 'pause');
+            document.querySelector('#iconReplay').classList.toggle('hidden', state !== 'replay');
+        }
+    </script>
+</body>
+</html>            align-items: center;
             gap: 10px;
         }
 
