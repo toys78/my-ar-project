@@ -30,16 +30,5 @@
 
     </model-viewer>
 
-    <script>
-        const viewer = document.querySelector('model-viewer');
-        
-        // up 애니메이션 종료 후 down 자동 실행 (핵심 로직만 유지)
-        viewer.addEventListener('finished', () => {
-            if (viewer.animationName === 'up') {
-                viewer.animationName = 'down';
-                viewer.play();
-            }
-        });
-    </script>
 </body>
 </html>
