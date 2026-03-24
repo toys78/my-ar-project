@@ -1,34 +1,42 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Basic AR View</title>
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
-    <style>
-        body { margin: 0; background-color: #ffffff; }
-        model-viewer { width: 100%; height: 100vh; }
-    </style>
-</head>
-<body>
+<script>
+    const viewer = document.querySelector('#car-viewer');
+    const playBtn = document.querySelector('#play-btn');
+    let isPlaying = false;
 
-    <model-viewer 
-        src="car.glb" 
-        ios-src="car.glb" 
-        ar 
-        camera-controls 
-        autoplay
-        animation-name=""
-        shadow-intensity="1"
-        environment-image="neutral"
-        /* 배경 이미지를 강제로 비움으로써 나무 숲 제거 */
-        skybox-image="">
+    playBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (isPlaying) {
+            viewer.pause();
+            isPlaying = false;
+            updateButton("play");
+            return;
+        }
 
-        <button slot="ar-button" style="position: absolute; top: 20px; right: 20px; padding: 10px;">
-            AR 보기
-        </button>
+        // 'up' 액션을 명확히 지칭하여 시작
+        viewer.animationName = 'up'; 
+        viewer.currentTime = 0; 
+        viewer.play();
+        isPlaying = true;
+        updateButton("pause");
+    });
 
-    </model-viewer>
+    // up이 끝난 직후 down으로 전환하는 로직
+    viewer.addEventListener('finished', () => {
+        if (viewer.animationName === 'up') {
+            viewer.animationName = 'down';
+            viewer.currentTime = 0; // 시작점 초기화
+            viewer.play();
+        } else {
+            isPlaying = false;
+            updateButton("replay");
+        }
+    });
 
-</body>
-</html>
+    function updateButton(state) {
+        const btnText = document.querySelector('#btn-text');
+        const playIcon = document.querySelector('#play-icon');
+        if (state === "play") { playIcon.innerHTML = "▶"; btnText.innerText = "애니메이션 재생"; }
+        else if (state === "pause") { playIcon.innerHTML = "||"; btnText.innerText = "일시 정지"; }
+        else if (state === "replay") { playIcon.innerHTML = "🔄"; btnText.innerText = "다시 재생"; }
+    }
+</script>
