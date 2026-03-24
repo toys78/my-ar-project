@@ -1,127 +1,76 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <title>AR Explode - HDR Optimized</title>
-    
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@6.1.1/dist/aframe-extras.min.js"></script>
-    <script src="https://unpkg.com/aframe-environment-component@1.3.2/dist/aframe-environment-component.min.js"></script>
-
+    <title>내 자동차 AR 시연</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; }
-        .ui {
-            position: fixed;
-            bottom: 30px;
+        body { margin: 0; padding: 0; }
+        model-viewer { width: 100%; height: 95vh; background-color: #f0f0f0; }
+
+        /* 플레이 버튼 디자인 */
+        .play-button {
+            position: absolute;
+            bottom: 40px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 10;
-        }
-        button {
-            padding: 15px 25px;
-            font-size: 16px;
-            border: none;
-            border-radius: 50px;
-            background: rgba(0, 122, 255, 0.8); /* 좀 더 전문적인 블루 톤 */
+            padding: 15px 30px;
+            background-color: #007AFF; /* 모던한 블루 */
             color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
             font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .play-button:active {
+            background-color: #0056b3;
+            transform: translateX(-50%) scale(0.95);
         }
     </style>
-
-    <script>
-        // 🎬 애니메이션 컨트롤 컴포넌트
-        AFRAME.registerComponent('animation-controller', {
-            init: function () {
-                this.modelLoaded = false;
-                this.el.addEventListener('model-loaded', () => {
-                    this.modelLoaded = true;
-                });
-            },
-            playForward: function () {
-                if (!this.modelLoaded) return;
-                this.el.removeAttribute('animation-mixer');
-                this.el.setAttribute('animation-mixer', {
-                    clip: '*',
-                    loop: 'once',
-                    timeScale: 1,
-                    clampWhenFinished: true
-                });
-            }
-        });
-
-        // 💎 재질 개선 (반투명 및 메탈릭 반사 보정)
-        AFRAME.registerComponent('fix-materials', {
-            init: function () {
-                this.el.addEventListener('model-loaded', () => {
-                    const mesh = this.el.getObject3D('mesh');
-                    mesh.traverse((node) => {
-                        if (node.isMesh && node.material) {
-                            // 유리 재질 처리
-                            if (node.material.opacity < 1 || node.material.name.toLowerCase().includes('glass')) {
-                                node.material.transparent = true;
-                                node.material.opacity = 0.4;
-                                node.material.depthWrite = false;
-                                node.material.side = THREE.DoubleSide;
-                            }
-                            // ✨ 메탈릭 재질이 검게 타는 것 방지 (환경 반사 유도)
-                            node.material.roughness = Math.max(node.material.roughness, 0.1);
-                            node.material.metalness = Math.min(node.material.metalness, 0.8);
-                            node.material.needsUpdate = true;
-                        }
-                    });
-                });
-            }
-        });
-    </script>
 </head>
-
 <body>
-    <div class="ui">
-        <button onclick="explode()">분해 애니메이션 실행</button>
-    </div>
 
-    <a-scene 
-        embedded 
-        arjs="sourceType: webcam; debugUIEnabled: false;"
-        renderer="colorManagement: true; exposure: 1.5; toneMapping: ACESFilmic; physicallyCorrectLights: true;">
-        
-        <a-assets>
-            <a-asset-item id="car-model" src="carmodel.glb"></a-asset-item>
-        </a-assets>
+    <model-viewer 
+        id="car-viewer"
+        src="car.glb" 
+        ar 
+        ar-modes="webxr scene-viewer quick-look" 
+        camera-controls 
+        shadow-intensity="1" 
+        animation-name="*"> <button slot="ar-button" style="background-color: white; border-radius: 4px; border: none; position: absolute; top: 16px; right: 16px; padding: 10px;">
+            👋 여기서 AR 보기
+        </button>
 
-        <a-entity environment="preset: city; lighting: none; skyType: atmosphere;"></a-entity>
+        <button id="play-btn" class="play-button">
+            <span>▶</span> 애니메이션 재생
+        </button>
 
-        <a-entity light="type: ambient; intensity: 1.2; color: #ffffff;"></a-entity>
-        <a-entity light="type: directional; intensity: 1.8; position: 2 4 3; castShadow: true;"></a-entity>
-        <a-entity light="type: directional; intensity: 1.0; position: -2 2 -1;"></a-entity>
-
-        <a-marker preset="hiro">
-            <a-plane rotation="-90 0 0" width="3" height="3" material="opacity: 0.2; color: #000" shadow="receive: true"></a-plane>
-
-            <a-entity 
-                id="car"
-                gltf-model="#car-model"
-                scale="0.8 0.8 0.8"
-                position="0 0 0"
-                shadow="cast: true; receive: true"
-                animation-controller
-                fix-materials>
-            </a-entity>
-        </a-marker>
-
-        <a-entity camera></a-entity>
-    </a-scene>
+    </model-viewer>
 
     <script>
-        function explode(){
-            const carEl = document.querySelector('#car');
-            if(carEl && carEl.components['animation-controller']) {
-                carEl.components['animation-controller'].playForward();
-            }
-        }
+        const modelViewer = document.querySelector('#car-viewer');
+        const playBtn = document.querySelector('#play-btn');
+
+        playBtn.addEventListener('click', () => {
+            // 처음부터 재생하기 위해 시간을 0으로 초기화
+            modelViewer.currentTime = 0;
+            modelViewer.play();
+            
+            // 재생 중임을 알리기 위해 버튼 텍스트 변경 (선택 사항)
+            playBtn.innerHTML = "<span>🔄</span> 다시 재생";
+        });
+
+        // 애니메이션이 끝나면 버튼 상태를 원래대로 (선택 사항)
+        modelViewer.addEventListener('finished', () => {
+            playBtn.innerHTML = "<span>▶</span> 애니메이션 재생";
+        });
     </script>
+
 </body>
 </html>
